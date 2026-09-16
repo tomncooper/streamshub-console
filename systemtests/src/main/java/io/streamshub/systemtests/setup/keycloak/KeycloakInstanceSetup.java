@@ -34,7 +34,7 @@ public class KeycloakInstanceSetup {
     private static final Logger LOGGER = LogWrapper.getLogger(KeycloakInstanceSetup.class);
 
     public static final String KEYCLOAK_RESOURCES_PATH =
-        KubeTestEnv.USER_PATH + "/src/main/java/com/github/streamshub/systemtests/setup/keycloak";
+        KubeTestEnv.USER_PATH + "/src/main/java/io/streamshub/systemtests/setup/keycloak";
 
     // File paths
     private static final String POSTGRES_RESOURCES = KEYCLOAK_RESOURCES_PATH + "/postgres";

@@ -379,7 +379,7 @@
                         </goals>
                         <configuration>
                             <excludes>
-                                <exclude>com/github/streamshub/console/api/support/TrustAllCertificateManager.class</exclude>
+                                <exclude>io/streamshub/console/api/support/TrustAllCertificateManager.class</exclude>
                             </excludes>
                             <exclClassLoaders>*QuarkusClassLoader</exclClassLoaders>
                             <destFile>${project.basedir}/target/jacoco.exec</destFile>
@@ -393,7 +393,7 @@
                         </goals>
                         <configuration>
                             <excludes>
-                                <exclude>com/github/streamshub/console/api/support/TrustAllCertificateManager.class</exclude>
+                                <exclude>io/streamshub/console/api/support/TrustAllCertificateManager.class</exclude>
                             </excludes>
                             <destFile>${project.basedir}/target/jacoco.exec</destFile>
                             <append>true</append>

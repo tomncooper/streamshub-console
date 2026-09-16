@@ -196,7 +196,7 @@ public class TlsHelper {
 
         // Generate a new KeyPair and sign it using the Root Cert Private Key
         // by generating a CSR (Certificate Signing Request)
-        X500Name issuedCertSubject = new X500Name("CN=localhost,O=com.github.streamshub");
+        X500Name issuedCertSubject = new X500Name("CN=localhost,O=io.streamshub");
         BigInteger issuedCertSerialNum = new BigInteger(Long.toString(new SecureRandom().nextLong()));
 
         PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(issuedCertSubject,

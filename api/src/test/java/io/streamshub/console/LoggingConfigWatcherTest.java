@@ -32,7 +32,7 @@ class LoggingConfigWatcherTest {
     @BeforeEach
     void setup() {
         context.getLogger("").setLevel(Level.INFO);
-        context.getLogger("com.github.streamshub").setLevel(null);
+        context.getLogger("io.streamshub").setLevel(null);
         override = createTempFile();
         watcher = buildWatcher(override);
     }
@@ -40,7 +40,7 @@ class LoggingConfigWatcherTest {
     @ParameterizedTest
     @CsvSource({
         "'',                      quarkus.log.level,                                    INFO,    DEBUG",
-        "'com.github.streamshub', quarkus.log.category.\"com.github.streamshub\".level, INHERIT, DEBUG"
+        "'io.streamshub', quarkus.log.category.\"io.streamshub\".level, INHERIT, DEBUG"
     })
     void testOriginalLevelRestoredWhenOverrideDeleted(String logger, String property, String originalLevel, String newLevel) throws Exception {
         Level originalLevelValue = "INHERIT".equals(originalLevel) ? null : context.getLevelForName(originalLevel);
@@ -75,7 +75,7 @@ class LoggingConfigWatcherTest {
     @ParameterizedTest
     @CsvSource({
         "'',                      quarkus.log.level",
-        "'com.github.streamshub', quarkus.log.category.\"com.github.streamshub\".level"
+        "'io.streamshub', quarkus.log.category.\"io.streamshub\".level"
     })
     void testLevelUpdatedAndOriginalLevelPreserved(String logger, String property) throws Exception {
         context.getLogger(logger).setLevel(Level.INFO);
