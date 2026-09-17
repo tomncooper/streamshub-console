@@ -2,6 +2,7 @@ package io.streamshub.console;
 
 import java.time.Duration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.streamshub.console.api.v1alpha1.Console;
@@ -38,6 +39,17 @@ class MigrationGuardTest extends ConsoleReconcilerTestBase {
     private static final String DEPLOYMENT_SUFFIX = "-console-deployment";
     private static final String MAINTAINED_GROUP = "console.streamshub.io";
     private static final String LEGACY_GROUP = "console.streamshub.github.com";
+
+    /**
+     * {@link ConsoleReconcilerTestBase#setUp} only cleans up {@code Console} resources between
+     * tests, not the legacy CR type this test class also creates; without this, a leftover
+     * LegacyConsole from one test method collides with (or causes a false-positive defer for) the
+     * next test method's same-named CR.
+     */
+    @BeforeEach
+    void cleanupLegacyConsoles() {
+        delete(client.resources(LegacyConsole.class).inAnyNamespace());
+    }
 
     private LegacyConsole createLegacyConsole(LegacyConsoleBuilder builder, String namespace) {
         var meta = new io.fabric8.kubernetes.api.model.ObjectMetaBuilder(builder.getMetadata())
