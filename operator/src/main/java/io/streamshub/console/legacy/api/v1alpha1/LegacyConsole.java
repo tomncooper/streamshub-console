@@ -8,6 +8,7 @@ import io.streamshub.console.api.v1alpha1.status.ConsoleStatus;
 import io.fabric8.kubernetes.api.model.Namespaced;
 import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.Group;
+import io.fabric8.kubernetes.model.annotation.Kind;
 import io.fabric8.kubernetes.model.annotation.Version;
 import io.quarkiverse.operatorsdk.annotations.CSVMetadata;
 import io.sundr.builder.annotations.Buildable;
@@ -15,6 +16,11 @@ import io.sundr.builder.annotations.Buildable;
 @Version(value = "v1alpha1", deprecated = true,
         deprecationWarning = "console.streamshub.github.com/v1alpha1 is deprecated; use console.streamshub.io/v1alpha1 instead")
 @Group("console.streamshub.github.com")
+// The CRD generator defaults Kind/plural to the Java class's simple name ("LegacyConsole" ->
+// "legacyconsoles"); the Java class is renamed only to avoid CDI bean-type ambiguity with the
+// maintained Console class, but the served Kind/plural must remain "Console"/"consoles" so this
+// is still the same resource type under a different (deprecated) group.
+@Kind("Console")
 @Buildable(editableEnabled = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @CSVMetadata(

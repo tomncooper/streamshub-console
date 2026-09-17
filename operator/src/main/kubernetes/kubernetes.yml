@@ -5,6 +5,7 @@ metadata:
   name: streamshub-consolereconciler-cluster-role
 rules:
   - apiGroups:
+      - console.streamshub.io
       - console.streamshub.github.com
     resources:
       - consoles

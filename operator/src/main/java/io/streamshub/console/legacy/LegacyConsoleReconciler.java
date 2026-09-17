@@ -35,7 +35,9 @@ import io.streamshub.console.legacy.dependents.LegacyPrometheusDeployment;
 import io.streamshub.console.legacy.dependents.LegacyPrometheusService;
 import io.streamshub.console.legacy.dependents.LegacyPrometheusServiceAccount;
 import io.streamshub.console.legacy.dependents.conditions.LegacyDeploymentReadyCondition;
+import io.streamshub.console.legacy.dependents.conditions.LegacyMigrationGuardCondition;
 import io.streamshub.console.legacy.dependents.conditions.LegacyPrometheusPrecondition;
+import io.streamshub.console.support.MigrationGuard;
 import io.streamshub.console.support.RootCause;
 
 import io.javaoperatorsdk.operator.AggregatedOperatorException;
@@ -62,6 +64,7 @@ import io.javaoperatorsdk.operator.processing.dependent.workflow.WorkflowReconci
             @Dependent(
                     name = LegacyConfigurationProcessor.NAME,
                     type = LegacyConfigurationProcessor.class,
+                    reconcilePrecondition = LegacyMigrationGuardCondition.class,
                     readyPostcondition = LegacyConfigurationProcessor.Postcondition.class),
             @Dependent(
                     name = LegacyPrometheusClusterRole.NAME,
@@ -153,10 +156,13 @@ import io.javaoperatorsdk.operator.processing.dependent.workflow.WorkflowReconci
         })
 public class LegacyConsoleReconciler implements Reconciler<LegacyConsole>, Cleaner<LegacyConsole> {
 
+    /** Fixed backoff used to re-check a same-named peer's migration conflict. */
+    private static final Duration MIGRATION_CONFLICT_BACKOFF = Duration.ofSeconds(30);
+
     @Override
     public UpdateControl<LegacyConsole> reconcile(LegacyConsole resource, Context<LegacyConsole> context) {
         var result = context.managedWorkflowAndDependentResourceContext().getWorkflowReconcileResult();
-        determineConditions(resource, result, null);
+        boolean deferred = determineConditions(resource, context, result, null);
 
         Long generation = resource.getMetadata().getGeneration();
 
@@ -164,7 +170,8 @@ public class LegacyConsoleReconciler implements Reconciler<LegacyConsole>, Clean
             resource.getStatus().setObservedGeneration(generation);
         }
 
-        return UpdateControl.patchStatus(resource);
+        var update = UpdateControl.patchStatus(resource);
+        return deferred ? update.rescheduleAfter(MIGRATION_CONFLICT_BACKOFF) : update;
     }
 
     @Override
@@ -174,7 +181,7 @@ public class LegacyConsoleReconciler implements Reconciler<LegacyConsole>, Clean
 
         Logger.getLogger(getClass()).debug("Exception during reconcile", e);
         var result = context.managedWorkflowAndDependentResourceContext().getWorkflowReconcileResult();
-        determineConditions(resource, result, e);
+        determineConditions(resource, context, result, e);
 
         return ErrorStatusUpdateControl.patchStatus(resource)
                 .rescheduleAfter(Duration.ofSeconds(10));
@@ -187,11 +194,30 @@ public class LegacyConsoleReconciler implements Reconciler<LegacyConsole>, Clean
 
     /**
      * Sets the "Ready" condition as well as any "Error" conditions if applicable to the result of the
-     * workflow reconcile processing.
+     * workflow reconcile processing. Returns {@code true} if a same-named peer in the other group
+     * owns this Console's children and this side deferred (see {@link MigrationGuard}), in which
+     * case the caller should requeue sooner than the default reconciliation interval.
      */
-    private void determineConditions(LegacyConsole resource, Optional<WorkflowReconcileResult> result, Exception e) {
+    private boolean determineConditions(LegacyConsole resource, Context<LegacyConsole> context, Optional<WorkflowReconcileResult> result, Exception e) {
         var status = resource.getOrCreateStatus();
         var readyCondition = status.getCondition("Ready");
+
+        var verdict = context.managedWorkflowAndDependentResourceContext()
+                .get(MigrationGuard.CONTEXT_KEY, MigrationGuard.Verdict.class);
+
+        if (verdict.filter(MigrationGuard.Verdict.DEFER::equals).isPresent()) {
+            readyCondition.setActive(true);
+            readyCondition.setStatus("False");
+            readyCondition.setLastTransitionTime(Instant.now().toString());
+            readyCondition.setReason(Condition.Reasons.MIGRATION_CONFLICT);
+            readyCondition.setMessage(("A Console named '%s' already exists under the "
+                    + "console.streamshub.io group and owns its managed resources. "
+                    + "Finish migrating to console.streamshub.io, or delete this deprecated "
+                    + "console.streamshub.github.com resource, to stop reconciling it.").formatted(resource.getMetadata().getName()));
+            status.clearStaleConditions();
+            return true;
+        }
+
         var notReady = result.map(r -> r.getNotReadyDependents()).filter(Predicate.not(Collection::isEmpty));
         var errored = result.map(r -> r.getErroredDependents()).filter(Predicate.not(Map::isEmpty));
         boolean isReady = notReady.isEmpty() && errored.isEmpty();
@@ -261,6 +287,7 @@ public class LegacyConsoleReconciler implements Reconciler<LegacyConsole>, Clean
         );
 
         status.clearStaleConditions();
+        return false;
     }
 
     /**
