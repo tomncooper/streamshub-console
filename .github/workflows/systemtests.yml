@@ -126,7 +126,8 @@ jobs:
           set -x
           echo "Preparing YAML-based installation..."
 
-          cat ./operator/target/kubernetes/consoles.console.streamshub.github.com-v1.yml \
+          cat ./operator/target/kubernetes/consoles.console.streamshub.io-v1.yml \
+              ./operator/target/kubernetes/consoles.console.streamshub.github.com-v1.yml \
               ./operator/target/kubernetes/kubernetes.yml \
               > ./target/streamshub-console-operator.yaml
 

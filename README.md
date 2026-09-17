@@ -105,7 +105,7 @@ cat install/operator/olm/*.yaml | envsubst | kubectl apply -n ${NAMESPACE} -f -
 Once the operator is ready, you may then create a `Console` resource in the namespace where the console should be deployed. This example `Console` is based on the example Apache Kafka<sup>®</sup> cluster deployed above in the [prerequisites section](#prerequisites). Also see [examples/console/010-Console-example.yaml](examples/console/010-Console-example.yaml).
 
 ```yaml
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: example

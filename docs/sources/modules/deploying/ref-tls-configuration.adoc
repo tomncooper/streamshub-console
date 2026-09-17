@@ -46,7 +46,7 @@ kubectl create secret generic my-console-tls \
 .Console custom resource with TLS enabled
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console

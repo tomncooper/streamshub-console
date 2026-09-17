@@ -9,7 +9,7 @@
 # for details on how to enable monitoring of user-defined projects in OpenShift.
 #
 ---
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: example

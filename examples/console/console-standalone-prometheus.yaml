@@ -9,7 +9,7 @@
 # use with a Strimzi Kafka cluster.
 #
 ---
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: example

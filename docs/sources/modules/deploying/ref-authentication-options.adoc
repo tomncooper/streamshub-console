@@ -25,7 +25,7 @@ The configuration introduces the following additional properties for console dep
 .Example security configuration for all clusters
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console
@@ -121,7 +121,7 @@ Administrators can also update certain resources.
 .Example security configuration for an individual cluster
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console
