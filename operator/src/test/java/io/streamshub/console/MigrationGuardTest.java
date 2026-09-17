@@ -12,7 +12,9 @@ import io.streamshub.console.dependents.ConsoleResource;
 import io.streamshub.console.legacy.api.v1alpha1.LegacyConsole;
 import io.streamshub.console.legacy.api.v1alpha1.LegacyConsoleBuilder;
 
+import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.OwnerReference;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
@@ -208,8 +210,20 @@ class MigrationGuardTest extends ConsoleReconcilerTestBase {
 
         client.resources(LegacyConsole.class).inNamespace(CONSOLE_NS).withName(CONSOLE_NAME).delete();
 
-        // Once the legacy peer is gone, the maintained side should adopt/rebuild the children
-        // rather than remain deferred, within the fixed migration-conflict backoff.
+        // The dev-services test API server does not run Kubernetes' garbage collector, so
+        // deleting the legacy CR does not cascade-delete its owned children the way a real
+        // cluster would (the base test class's own cleanup explicitly deletes children for the
+        // same reason). Simulate that GC step so this test exercises MigrationGuard's
+        // convergence behavior rather than the dependents' non-SSA adoption behavior for
+        // resources that already exist under a different owner.
+        delete(client.resources(Deployment.class).inNamespace(CONSOLE_NS).withLabels(ConsoleResource.MANAGEMENT_LABEL));
+        delete(client.resources(Service.class).inNamespace(CONSOLE_NS).withLabels(ConsoleResource.MANAGEMENT_LABEL));
+        delete(client.resources(ServiceAccount.class).inNamespace(CONSOLE_NS).withLabels(ConsoleResource.MANAGEMENT_LABEL));
+        delete(client.resources(Secret.class).inNamespace(CONSOLE_NS).withLabels(ConsoleResource.MANAGEMENT_LABEL));
+        delete(client.resources(ConfigMap.class).inNamespace(CONSOLE_NS).withLabels(ConsoleResource.MANAGEMENT_LABEL));
+
+        // Once the legacy peer and its children are gone, the maintained side should adopt/rebuild
+        // the children rather than remain deferred, within the fixed migration-conflict backoff.
         await().atMost(Duration.ofSeconds(45)).untilAsserted(() -> {
             Deployment current = client.apps().deployments()
                     .inNamespace(CONSOLE_NS)
