@@ -8,12 +8,17 @@ import org.junit.jupiter.api.Test;
 import io.streamshub.console.api.v1alpha1.Console;
 import io.streamshub.console.api.v1alpha1.ConsoleBuilder;
 import io.streamshub.console.api.v1alpha1.status.Condition;
+import io.streamshub.console.dependents.ConsoleResource;
 import io.streamshub.console.legacy.api.v1alpha1.LegacyConsole;
 import io.streamshub.console.legacy.api.v1alpha1.LegacyConsoleBuilder;
 
 import io.fabric8.kubernetes.api.model.OwnerReference;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRole;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
 import io.quarkus.test.junit.QuarkusTest;
 
 import static org.awaitility.Awaitility.await;
@@ -41,14 +46,21 @@ class MigrationGuardTest extends ConsoleReconcilerTestBase {
     private static final String LEGACY_GROUP = "console.streamshub.github.com";
 
     /**
-     * {@link ConsoleReconcilerTestBase#setUp} only cleans up {@code Console} resources between
-     * tests, not the legacy CR type this test class also creates; without this, a leftover
-     * LegacyConsole from one test method collides with (or causes a false-positive defer for) the
-     * next test method's same-named CR.
+     * {@link ConsoleReconcilerTestBase#setUp} cleans up Console/Deployment/ConfigMap/Secret/
+     * Ingress between tests, but not LegacyConsole, ServiceAccount, Service, ClusterRole, or
+     * ClusterRoleBinding. Since maintained and legacy dependents intentionally produce
+     * identically-named children (by design, so MigrationGuard has something to arbitrate), a
+     * leftover object from an earlier test method racing with a fresh reconcile of the same name
+     * in the next test method causes a genuine (if test-induced) resourceVersion conflict, not a
+     * MigrationGuard defect.
      */
     @BeforeEach
-    void cleanupLegacyConsoles() {
+    void cleanupLegacyConsolesAndSharedChildren() {
         delete(client.resources(LegacyConsole.class).inAnyNamespace());
+        delete(client.resources(ServiceAccount.class).inAnyNamespace().withLabels(ConsoleResource.MANAGEMENT_LABEL));
+        delete(client.resources(Service.class).inAnyNamespace().withLabels(ConsoleResource.MANAGEMENT_LABEL));
+        delete(client.resources(ClusterRole.class).withLabels(ConsoleResource.MANAGEMENT_LABEL));
+        delete(client.resources(ClusterRoleBinding.class).withLabels(ConsoleResource.MANAGEMENT_LABEL));
     }
 
     private LegacyConsole createLegacyConsole(LegacyConsoleBuilder builder, String namespace) {
