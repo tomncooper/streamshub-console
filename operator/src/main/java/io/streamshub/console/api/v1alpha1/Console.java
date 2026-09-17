@@ -13,7 +13,7 @@ import io.quarkiverse.operatorsdk.annotations.CSVMetadata;
 import io.sundr.builder.annotations.Buildable;
 
 @Version("v1alpha1")
-@Group("console.streamshub.github.com")
+@Group("console.streamshub.io")
 @Buildable(editableEnabled = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @CSVMetadata(
