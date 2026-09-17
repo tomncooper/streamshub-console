@@ -46,7 +46,7 @@ The configuration for `openshift-monitoring` and `embedded` requires no further 
 .Example metrics configuration for Openshift monitoring
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console
@@ -70,7 +70,7 @@ spec:
 .Example metrics configuration for standalone Prometheus monitoring
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console

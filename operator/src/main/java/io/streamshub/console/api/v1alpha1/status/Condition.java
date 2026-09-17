@@ -152,5 +152,6 @@ public class Condition {
         public static final String INVALID_CONFIGURATION = "InvalidConfiguration";
         public static final String DEPRECATED_CONFIGURATION = "DeprecatedConfiguration";
         public static final String RECONCILIATION_EXCEPTION = "ReconciliationException";
+        public static final String MIGRATION_CONFLICT = "MigrationConflict";
     }
 }

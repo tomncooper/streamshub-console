@@ -27,7 +27,7 @@ Otherwise, configure the resource to connect to your Kafka cluster.
 .Deploying the console with an example configuration for connecting to a Kafka cluster
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console

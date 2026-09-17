@@ -58,7 +58,7 @@ The following example uses a `nodeSelector` to schedule the console pod only on 
 
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console
@@ -90,7 +90,7 @@ The following example uses a preferred node affinity rule to favor nodes in the 
 
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console
@@ -123,7 +123,7 @@ spec:
 
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console

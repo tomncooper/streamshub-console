@@ -23,7 +23,7 @@ Set this property to `virtualkafkaclusters.kroxylicious.io` when configuring a K
 .Deploying the console with an example configuration for connecting to a virtual Kafka cluster
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console

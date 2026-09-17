@@ -17,7 +17,7 @@
 # Replace <placeholders> with actual values specific to the environment.
 #
 ---
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: example

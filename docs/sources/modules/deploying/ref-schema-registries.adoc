@@ -28,7 +28,7 @@ The value of `schemaRegistry` is the `name` of the entry in the `schemaRegistrie
 .Example schema registry configuration with OIDC authentication
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console

@@ -26,7 +26,7 @@ For standalone Kafka clusters without a namespace, specify only the cluster name
 .Example Kafka Connect cluster configuration
 [source,yaml]
 ----
-apiVersion: console.streamshub.github.com/v1alpha1
+apiVersion: console.streamshub.io/v1alpha1
 kind: Console
 metadata:
   name: my-console

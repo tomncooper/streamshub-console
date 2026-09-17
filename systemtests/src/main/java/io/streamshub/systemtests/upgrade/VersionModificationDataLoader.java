@@ -23,9 +23,10 @@ public class VersionModificationDataLoader {
 
     private static final Logger LOGGER = LogManager.getLogger(VersionModificationDataLoader.class);
 
-    // Output produced by a normal build in .github/workflows/release.yml, which joins the same two files into release operator YAML bundle.
+    // Output produced by a normal build in .github/workflows/release.yml, which joins the same files into release operator YAML bundle.
     private static final String OPERATOR_KUBERNETES_DIR = System.getProperty("user.dir") + "/../operator/target/kubernetes/";
-    private static final Path OPERATOR_CRD_FILE = Paths.get(OPERATOR_KUBERNETES_DIR, "consoles.console.streamshub.github.com-v1.yml");
+    private static final Path OPERATOR_CRD_FILE = Paths.get(OPERATOR_KUBERNETES_DIR, "consoles.console.streamshub.io-v1.yml");
+    private static final Path OPERATOR_LEGACY_CRD_FILE = Paths.get(OPERATOR_KUBERNETES_DIR, "consoles.console.streamshub.github.com-v1.yml");
     private static final Path OPERATOR_RESOURCES_FILE = Paths.get(OPERATOR_KUBERNETES_DIR, "kubernetes.yml");
 
     private static final Pattern VERSION_LABEL_PATTERN = Pattern.compile("app\\.kubernetes\\.io/version:\\s*\"?([\\w.-]+)\"?");
@@ -61,16 +62,16 @@ public class VersionModificationDataLoader {
     }
 
     private static String mergeLocalOperatorBundle(String newOperatorVersion) {
-        if (Files.notExists(OPERATOR_CRD_FILE) || Files.notExists(OPERATOR_RESOURCES_FILE)) {
-            throw new SetupException(String.format("Local Console Operator build output not found at '%s' and '%s. " +
-             "Build the operator module first before running tests.", OPERATOR_CRD_FILE, OPERATOR_RESOURCES_FILE));
+        if (Files.notExists(OPERATOR_CRD_FILE) || Files.notExists(OPERATOR_LEGACY_CRD_FILE) || Files.notExists(OPERATOR_RESOURCES_FILE)) {
+            throw new SetupException(String.format("Local Console Operator build output not found at '%s', '%s' and '%s'. " +
+             "Build the operator module first before running tests.", OPERATOR_CRD_FILE, OPERATOR_LEGACY_CRD_FILE, OPERATOR_RESOURCES_FILE));
         }
 
         String actualVersion;
         Path mergedBundle;
         try {
             actualVersion = extractOperatorVersionLabel(Files.readString(OPERATOR_RESOURCES_FILE));
-            mergedBundle = FileUtils.mergeYamlFiles(List.of(OPERATOR_CRD_FILE, OPERATOR_RESOURCES_FILE));
+            mergedBundle = FileUtils.mergeYamlFiles(List.of(OPERATOR_CRD_FILE, OPERATOR_LEGACY_CRD_FILE, OPERATOR_RESOURCES_FILE));
         } catch (IOException e) {
             throw new SetupException("Failed to read/merge local Console Operator build output", e);
         }
