@@ -21,7 +21,7 @@ jobs:
           CHANGED=$(git diff \
             ${{ github.event.pull_request.base.sha }} \
             ${{ github.event.pull_request.head.sha }} \
-            -- systemtests/src/main/java/com/github/streamshub/systemtests/Environment.java \
+            -- systemtests/src/main/java/io/streamshub/systemtests/Environment.java \
             | grep -E "^[+-].*OLD_CONSOLE_OPERATOR_VERSION" || true)
 
           if [ -z "$CHANGED" ]; then
